@@ -1,0 +1,31 @@
+The gzip'ed tar file contains source code, tests, and documentation
+for the package for computing Hilbert bases of linear Diophantine 
+equations,  implementing the algorithm described in my paper 
+"Computing the Hilbert base via the Elliott-MacMahon algorithm", Th. Computer Science 263 (2001) 37-46
+
+Copyright (C) 1996-2001, 2005	Dmitrii V. Pasechnik
+			Tilburg University, The Netherlands.
+			e-mail: dimpase@gmail.com
+
+This program is free software.  You can redistribute it and/or modify it under
+the terms of the GNU General Public License as published by the Free Software
+Foundation; either version 2 of the License, or (at your option) any later
+version. For details, see the file COPYING in the current directory, or
+see The FSF's own site.
+
+----------------------------------------------------------
+
+do make and then, say 
+main.exe <Tests/hppi4
+if you want to find Hilbert base of
+the system in the file Tests/hppi4
+
+the format is as follows:
+
+prtlevel #of_equations #of_variables
+equation_1
+equation_2
+...
+
+The output is written in the file base
+in the same directory

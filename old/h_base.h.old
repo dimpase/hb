@@ -1,0 +1,38 @@
+/* ************************************************************************
+ ** h_base.h               HB package version 0.1 (experimental)
+ ** 
+ ** Copyright (C) 1997 Dmitrii V. Pasechnik
+ **                    SSOR/TWI, TU Delft, The Netherlands
+ ** Headers for
+ ** handling the accumulation of HB: reducibility test, insertion
+* *********************************************************************** */
+
+/* #define DEBUG_h_base */
+
+typedef struct vi_entry { /* a node in the basis representation */
+  vint vi;
+  struct vi_entry *next;         /* bigger on the same level */  
+  struct vi_entry *down;         /* smallest one level down */
+} V_I;
+
+typedef struct _deg_base { /* a node in the list of lists 
+			      (one for each given degree) ordered by degree */
+  V_I *vectors;
+  struct _deg_base *next;
+  vint degree;
+} DEG_BASE;
+
+typedef struct {
+  /*  vint deg_min; */   /* degrees: minimal */
+  /*  vint deg_max; */   /*      and maximal */
+  DEG_BASE *start; /* beginning of the list */
+  int n;           /* length of the vectors */
+  int size;
+  FILE *outfile;
+} BASE;
+
+/* ***exported functions*** */
+
+void init_BASE(BASE **, int , FILE *);
+int reducible_vector(BASE *, vint, int, vint *);
+void insert_base_vector(BASE *b, vint deg, vint *v);

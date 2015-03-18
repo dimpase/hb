@@ -1,0 +1,206 @@
+/* ************************************************************************
+ ** h_base.c               HB package version 0.1 (experimental)
+ ** 
+ ** Copyright (C) 1997 Dmitrii V. Pasechnik
+ **                    SSOR/TWI, TU Delft, The Netherlands
+ ** 
+ ** Handling the accumulation of HB: reducibility test, insertion
+* *********************************************************************** */
+#include "defs.h" /* standard common definitions */
+#include "h_base.h"
+
+#define get_vi_entry(p)  if (NULL==((p=(struct vi_entry *)malloc(sizeof(struct vi_entry))))) {perror("out of memory in insert_base_v"); exit(7);}
+
+/* ************************************************************************
+   functions dealing with V_Is
+   *********************************************************************** */
+#ifdef DEBUG_h_base
+void dump_subtree(V_I *b, int lev)
+{
+  V_I *p;
+  if ((p=b)) printf("\n %3d. ",lev);
+  else printf("\n empty (sub)tree ");
+  while (p)
+    { printf("%4d",p->vi);
+      p=p->next;
+    }
+  p=b;
+  while (p)
+    { dump_subtree(p->down,lev+1);
+      p=p->next;
+    }
+}
+void dump_base(V_I *b) /* raw dump of the basis */
+{
+  printf("\n *** dumping the basis ***\n");
+  dump_subtree(b,0);
+}
+#endif
+
+/* checking if v is reducible */
+int is_reducible_v(vint *v,     /* vector */
+		 V_I *h  /* basis  */
+		 )
+{
+  register V_I *p;
+
+
+  if (!(p=h)) return 0;   /* irreducible */
+  /*  dump_base(h); */
+
+  if (!p->down)           /* the last level */
+      return (p->vi <= *v);
+  else
+    {
+      while (p && p->vi <= *v)
+	{ if (is_reducible_v(v+1,p->down)) return 1;
+	  p=p->next;
+	}
+      return 0;
+    }
+}
+
+
+/* inserting *new* v in the basis 
+   (inserting the same elt again would be a problem ) ;
+   called recursively */
+
+void init_base_v(vint *v      /* vector */, 
+		 int n        /* length of v */, 
+		 V_I **h /* ptr to the beginning of the basis */)
+{
+  int i;
+
+  V_I *p;
+  
+#ifdef DEBUG_h_base
+  printf("\n init_base_v: n=%d;\n vector:",n);
+  for (i=0; i<n; i++) printf("%3d",v[i]);
+#endif
+
+  get_vi_entry(p);
+  *h=p;
+  for(i=0; i<n-1; i++)
+    { p->vi=*(v++);
+      p->next=NULL;
+      get_vi_entry(p->down);
+      p=p->down;
+    }
+  p->vi=*v;
+  p->next=NULL;
+  p->down=NULL; 
+}
+
+void insert_base_v(vint *v      /* vector      */, 
+		 int n,         /* length of v */
+		 V_I **h /* ptr to the beginning of the basis */)
+{
+  V_I *p, *p0;
+  int lev;
+
+#ifdef DEBUG_h_base
+  int i;
+  if (n<0) 
+    {
+      perror("panic!! too deep in insert_v_rq (negative n)");
+      exit(10);
+    }
+  printf("\n insert_base_v: n=%d;\n vector:",n);
+  for (i=0; i<n; i++) printf("%3d",v[i]);
+#endif
+
+  p0=p=*h; /* beginning of the list */
+  while (p && (p->vi < *v)) 
+    {
+      p0=p;
+      p=p->next;
+    }
+
+  if (p && p->vi == *v) /* so far sharing the data */
+    insert_base_v(v+1, n-1, &(p->down));
+  else
+    { /* insert between p0 and p */
+      V_I *pt;
+      get_vi_entry(pt);
+      pt->vi=*v;
+      pt->next=p;
+ 
+      if (p0 != p) p0->next=pt; /* beginning of the base ? */
+      else *h=pt;
+
+      if (n>0) init_base_v(v+1, n-1, &pt->down);
+      else pt->down=NULL;
+    }
+}
+	  
+/* ************************************************************************
+   functions dealing with BASE and DEG_BASE
+   *********************************************************************** */
+/* ***exported functions*** */
+
+void init_BASE(BASE **b, int n, FILE *outfile)
+{
+  if (!(*b=(BASE *)malloc(sizeof(BASE))))
+    {perror("out of memory in init_BASE"); exit(7);}    
+  /*  (*b)->deg_min=0;
+      (*b)->deg_max=0; */
+  (*b)->start=NULL;
+  (*b)->n=n;
+  (*b)->size=0;
+  (*b)->outfile=outfile;
+}
+
+int reducible_vector(BASE *b, vint deg, int inker, vint *v)
+{
+  DEG_BASE *p=b->start;
+
+#ifdef DEBUG_h_base
+  int i;
+  printf("\n reducible_vector: vector of deg=%d :",deg);
+  for (i=0; i<b->n; i++) printf("%3d",v[i]);
+#endif
+
+  if (!inker) deg--; /* Av<>0; no need to check same degree vectors */
+  p=b->start;
+  while (p && p->degree <= deg)
+    {
+#ifdef DEBUG_h_base
+      printf("\n checking degree %d ",p->degree);
+#endif
+      if (is_reducible_v(v,p->vectors)) return 1;
+      p=p->next;
+    }
+  return 0;
+}
+      
+
+void insert_base_vector(BASE *b, vint deg, vint *v)
+/* it is assumed that the degree of vectors can only increase
+   as the algorithm works */
+{
+  DEG_BASE *p, *last;
+  int i;
+  last=p=b->start;
+  (b->size)++;
+  if (b->outfile)
+    {
+      fprintf(b->outfile,"\n");
+      for (i=0; i<b->n; i++) fprintf(b->outfile,"%3d",v[i]);
+    }
+  while (p && p->degree < deg) /* skip smaller degrees */
+    { last=p; p=p->next; }
+
+  if (p) /* already have this degree present */
+    insert_base_v(v,b->n,&(p->vectors));
+  
+  else    /* have to initialize */
+    {
+      if (!(p=(DEG_BASE *)malloc(sizeof(DEG_BASE))))
+	{perror("out of memory in insert_base_vector"); exit(7);}
+      p->degree=deg;
+      p->next=NULL;
+      init_base_v(v,b->n,&(p->vectors));
+      if (last) last->next=p;
+      else b->start=p;
+    }
+}
