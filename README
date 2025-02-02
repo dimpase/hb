@@ -4,7 +4,9 @@ equations,  implementing the algorithm described in my paper
 "Computing the Hilbert base via the Elliott-MacMahon algorithm", Th. Computer Science 263 (2001) 37-46
 
 Copyright (C) 1996-2001, 2005	Dmitrii V. Pasechnik
-			Tilburg University, The Netherlands.
+			Tilburg University, The Netherlands. 
+Copyright (C) 2025		Dmitrii V. Pasechnik
+			Northwestern University, USA
 			e-mail: dimpase@gmail.com
 
 This program is free software.  You can redistribute it and/or modify it under

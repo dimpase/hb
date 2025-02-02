@@ -10,6 +10,8 @@
  ** 3) graph_adjacency
  ** 4) graph_add_vertex
 * *********************************************************************** */
+#ifndef _GRAPH_HB
+#define _GRAPH_HB
 #include "tree.h"
 
 typedef tree SET;
@@ -50,9 +52,4 @@ void graph_remove_vertex(GRAPH *, VERT *, void (*)(VERT *));
 int tree_trav_pars(tree **, int (*)(), void *);
 
 tree_t tree_min(tree **); 
-
-
-
-
-
-
+#endif

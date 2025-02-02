@@ -6,7 +6,12 @@
  ** standard common definitions 
  ** 
 * *********************************************************************** */
+#ifndef _DEFS_HB
+#define _DEFS_HB
+
 #include <stdio.h>
+#include <stdlib.h>
+#include "graph.h"
 
 typedef int vint; /* vector entries */
 
@@ -23,3 +28,5 @@ typedef struct {
   int activ_ctr; /* # of appearances in the edges of the pr. queue */
   vint *Ax;} VERT_DATA;
 
+extern void vertex_print(VERT *);
+#endif

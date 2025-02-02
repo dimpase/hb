@@ -6,6 +6,8 @@
  ** Headers for
  ** handling the accumulation of HB: reducibility test, insertion
 * *********************************************************************** */
+#ifndef _H_BASE_HB
+#define _H_BASE_HB
 
 #include <limits.h>
 typedef unsigned int MASK;
@@ -46,3 +48,4 @@ typedef struct {
 void init_BASE(BASE **, int , FILE *);
 int reducible_vector(BASE *, vint, int, vint *);
 void insert_base_vector(BASE *b, vint deg, vint *v);
+#endif

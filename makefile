@@ -1,7 +1,7 @@
 #CC=checkergcc
 CC=gcc
 CFLAGS=-g -O
-EXT=.exe
+EXT=
 
 all : main.o pq.o graph.o h_base.o t_trav.o tree.o
 	$(CC) $(CFLAGS) -o main$(EXT) main.o pq.o graph.o h_base.o tree.o t_trav.o
@@ -25,7 +25,7 @@ tree.o : tree.c tree.h vixie.h
 	$(CC) $(CFLAGS) -c tree.c
 
 clean :
-	rm *.o main$(EXT) *~ *# Tests/*~
+	rm -f *.o main$(EXT) *~ *# Tests/*~
 
 arch :
 	tar cvzf HB.tgz *.c *.h makefile Tests/* README

@@ -192,7 +192,7 @@ int v_store(VERT *u)
 #endif
 */
 
-main()
+int main()
 {
   extern int prtlev;
   extern vint old_deg;
@@ -200,14 +200,20 @@ main()
   GRAPH *g;
   FILE *inp=stdin, *outbase;
   int n,m, process_pq(SET **, GRAPH *, BASE *);
+  int iret;
   SET *pq, *init_pq(GRAPH *);
   BASE *b;
 
+  outbase=fopen("base","w");
   old_deg=1;
-  fscanf(inp,"%d %d %d", &prtlev, &n, &m);
+  iret=fscanf(inp,"%d %d %d", &prtlev, &n, &m);
+  if (iret<3 || iret==EOF) {
+      printf("\n error in input... exiting.\n");
+      fclose(outbase);
+      return 1;
+  }
   a=getmat(inp,n,m);
 
-  outbase=fopen("base","w");
   init_BASE(&b,m,outbase);
   g=cr_graph(n,m,a);
   /*  graph_print(g); */
@@ -218,6 +224,11 @@ main()
   /* graph_print(g); */
   printf(" \n %d elements in the basis found\n", b->size);
   fclose(outbase);
+  free(pq);
+  free(b);
+  free(g);
+  free(a);
+  return 0;
 }
 
 /* 
