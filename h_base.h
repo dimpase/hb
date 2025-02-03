@@ -46,6 +46,7 @@ typedef struct {
 /* ***exported functions*** */
 
 void init_BASE(BASE **, int , FILE *);
+void clean_BASE(BASE *);
 int reducible_vector(BASE *, vint, int, vint *);
 void insert_base_vector(BASE *b, vint deg, vint *v);
 #endif

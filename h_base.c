@@ -251,6 +251,36 @@ void init_BASE(BASE **b, int n, FILE *outfile)
   (*b)->outfile=outfile;
 }
 
+static void clean_vi(V_I *x)
+{
+  if (x) {
+      clean_vi(x->next);
+      clean_vi(x->down);
+      free(x);
+  }
+}
+
+void clean_BASE(BASE *b)
+{
+    DEG_BASE *p, *pn;
+    V_masks *v, *vn;
+    p = b->start;
+    while (p) {
+#ifdef DEBUG_h_base
+        printf("\n cleaning degree %d", p->degree);
+#endif
+        v = p->vectors;
+	while (v) {
+	    clean_vi(v->vectors);
+            vn = v->next;
+	    free(v);
+	    v = vn;
+	}
+	pn = p->next;
+	free(p);
+	p = pn;
+    }
+}
 int reducible_vector(BASE *b, vint deg, int inker, vint *v)
 {
   DEG_BASE *p=b->start;

@@ -200,7 +200,7 @@ int main()
   GRAPH *g;
   FILE *inp=stdin, *outbase;
   int n,m, process_pq(SET **, GRAPH *, BASE *);
-  int iret;
+  int iret, pqcnt=0;
   SET *pq, *init_pq(GRAPH *);
   BASE *b;
 
@@ -219,12 +219,14 @@ int main()
   /*  graph_print(g); */
   pq=init_pq(g);
 
-  while(process_pq(&pq,g,b));
-
+  while(process_pq(&pq,g,b)) {
+//	  printf("\n process_pq call %d", pqcnt++);
+  }
   /* graph_print(g); */
   printf(" \n %d elements in the basis found\n", b->size);
   fclose(outbase);
   free(pq);
+  clean_BASE(b);
   free(b);
   free(g);
   free(a);
